@@ -1,0 +1,14 @@
+{
+  "id": "com.classwidgets.systemtools.automation",
+  "name": "SystemTools 自动化",
+  "version": "0.1.0",
+  "api_version": ">=0.6.0",
+  "entry": "plugin.py",
+  "author": "Programmer-MrWang",
+  "description": "为 Class Widgets 2 提供对标 ClassIsland 的自动化系统：触发器、规则集与行动的编排。",
+  "url": "https://github.com/Programmer-MrWang/SystemTools-for-ClassWidegts",
+  "repo_url": "https://github.com/Programmer-MrWang/SystemTools-for-ClassWidegts",
+  "license": "MIT",
+  "readme": "README.md",
+  "icon": "icon.png"
+}
