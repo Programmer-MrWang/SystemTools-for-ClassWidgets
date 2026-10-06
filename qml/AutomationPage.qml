@@ -27,6 +27,9 @@ Page {
     readonly property int toolIconSize: 16
     // 行内删除按钮的按钮本体尺寸（RinUI ToolButton 默认隐式尺寸至少 40x32）。
     readonly property int compactIconButtonSize: 26
+    // 同一行内标准控件的隐式高度（RinUI Button/ToggleButton/ToolButton 均为 32）。
+    // 用于把隐式高度更小的控件（如 Switch 只有 20）在行内做垂直居中。
+    readonly property int standardControlHeight: 32
     property int menuActionIndex: -2
     readonly property bool backendReady: backend !== null && backend !== undefined
     readonly property bool stacked: availableWidth < 740
@@ -526,9 +529,32 @@ Page {
                                                         state: Number(modelData.state || 0)
                                                         Layout.alignment: Qt.AlignVCenter
                                                     }
-                                                    Switch { checked: modelData.enabled !== false; text: checked ? qsTr("开") : qsTr("关"); onToggled: if (backendReady) backend.setGroupEnabled(groupFrame.groupIndex, checked) }
-                                                    ToolButton { objectName: "copyGroupButton"; size: root.toolIconSize; icon.name: "ic_fluent_copy_20_regular"; flat: true; ToolTip { visible: parent.hovered; text: qsTr("复制规则组") } onClicked: if (backendReady) backend.duplicateGroup(groupFrame.groupIndex) }
-                                                    ToolButton { objectName: "removeGroupButton"; size: root.toolIconSize; icon.name: "ic_fluent_delete_20_regular"; flat: true; ToolTip { visible: parent.hovered; text: qsTr("删除规则组") } onClicked: if (backendReady) backend.removeGroup(groupFrame.groupIndex) }
+                                                    // RinUI 的 Switch 隐式高度只有 20，而本行其他控件都是 32；
+                                                    // Quick.Flow 顶部对齐会让开关整体偏上，这里用等高容器把它垂直居中。
+                                                    Item {
+                                                        implicitWidth: groupEnabledSwitch.implicitWidth
+                                                        implicitHeight: root.standardControlHeight
+                                                        Switch {
+                                                            id: groupEnabledSwitch
+                                                            objectName: "groupEnabledSwitch"
+                                                            anchors.verticalCenter: parent.verticalCenter
+                                                            checked: modelData.enabled !== false
+                                                            text: checked ? qsTr("开") : qsTr("关")
+                                                            onToggled: if (backendReady) backend.setGroupEnabled(groupFrame.groupIndex, checked)
+                                                        }
+                                                    }
+                                                    // 紧凑按钮比同行其他控件矮，同样需要容器居中，否则会贴着行顶部。
+                                                    Item {
+                                                        implicitWidth: groupButtonRow.implicitWidth
+                                                        implicitHeight: root.standardControlHeight
+                                                        RowLayout {
+                                                            id: groupButtonRow
+                                                            anchors.verticalCenter: parent.verticalCenter
+                                                            spacing: 4
+                                                            ToolButton { objectName: "copyGroupButton"; size: root.toolIconSize; implicitWidth: root.compactIconButtonSize; implicitHeight: root.compactIconButtonSize; icon.name: "ic_fluent_copy_20_regular"; flat: true; ToolTip { visible: parent.hovered; text: qsTr("复制规则组") } onClicked: if (backendReady) backend.duplicateGroup(groupFrame.groupIndex) }
+                                                            ToolButton { objectName: "removeGroupButton"; size: root.toolIconSize; implicitWidth: root.compactIconButtonSize; implicitHeight: root.compactIconButtonSize; icon.name: "ic_fluent_delete_20_regular"; flat: true; ToolTip { visible: parent.hovered; text: qsTr("删除规则组") } onClicked: if (backendReady) backend.removeGroup(groupFrame.groupIndex) }
+                                                        }
+                                                    }
                                                 }
                                                 Repeater {
                                                     model: modelData.rules
